@@ -45,14 +45,12 @@ public class RemoteControl extends Thread {
 	public void run() {
 		while (keepRunning) {
 			String s = receiver.receive();
-			System.out.println("RECEIVED: " + s);
 
 			if (s != null) {
 				String[] a = s.split(" ");
 				if (a.length >= 2) {
 					if (a[0].equals("pat")) {
 						String pat = a[1];
-						System.out.println("new pattern: " + pat);
 
 						try {
 							Notation not = Notation
