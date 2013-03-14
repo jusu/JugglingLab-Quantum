@@ -317,7 +317,7 @@ public class JugglingLab extends JApplet {
 	public static void main(String[] args) {
 		try {
 			new JugglingLab(); // to load audio clips
-			new ApplicationWindow("Juggling Lab");
+			new ApplicationWindow("InstantJay");
 		} catch (JuggleExceptionUser jeu) {
 			new ErrorDialog(null, jeu.getMessage());
 		} catch (JuggleExceptionInternal jei) {

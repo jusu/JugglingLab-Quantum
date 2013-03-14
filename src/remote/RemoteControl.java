@@ -11,6 +11,7 @@ public class RemoteControl extends Thread {
 
 	int patCounter = 0;
 	String pattern = "";
+	JMLPattern pat;
 
 	boolean keepRunning = true;
 	UDPSender sender = new UDPSender();
@@ -26,10 +27,10 @@ public class RemoteControl extends Thread {
 		patCounter = 0;
 	}
 
-	public void countCatch() {
+	public void countCatch(int path, int direction) {
 		if (patCounter < pattern.length()) {
 			char c = pattern.charAt(patCounter);
-			sender.send("b " + c);
+			sender.send(String.format("b %c %d %d", c, path, direction));
 		}
 
 		if (++patCounter >= pattern.length()) {
@@ -37,8 +38,9 @@ public class RemoteControl extends Thread {
 		}
 	}
 
-	public void updateAnimation(int i, int x, int y) {
-		String s = "xy " + i + " " + x + " " + y;
+	public void updateAnimation(int pathnum, int height, int x, int y) {
+		String s = String.format("xy %d %d %d %d", pathnum, height, x, y);
+		// String s = "xy " + pathnum + " " + height + " " + x + " " + y;
 		sender.send(s);
 	}
 
@@ -57,7 +59,10 @@ public class RemoteControl extends Thread {
 									.getNotation(Notation.builtinNotations[0]);
 							JMLPattern p = not.getJMLPattern("pattern=" + pat
 									+ ";prop=ball");
-							this.animator.restartJuggle(p, new AnimatorPrefs());
+							if (this.animator.parentView != null) {
+								this.animator.parentView.restartView(p,
+										new AnimatorPrefs());
+							}
 						} catch (JuggleExceptionUser e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();

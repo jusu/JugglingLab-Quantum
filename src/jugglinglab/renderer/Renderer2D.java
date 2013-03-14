@@ -305,6 +305,7 @@ public class Renderer2D extends Renderer {
 		numobjects = index;
 
 		// figure out which display elements are covering which other elements
+
 		for (int i = 0; i < numobjects; i++) {
 			for (int j = 0; j < numobjects; j++) {
 				if (j == i)
@@ -364,14 +365,17 @@ public class Renderer2D extends Renderer {
 				Prop pr = pat.getProp(pnum[ob.number - 1]);
 				int x = (int) (0.5f + ob.coord[0].x);
 				int y = (int) (0.5f + ob.coord[0].y);
+
+				Coordinate c = pat.getPathMax(ob.number);
+				Animator.remoteControl.updateAnimation(ob.number,
+						(int) Math.floor(c.z), (x /*- grip.width*/),
+						(y /*- grip.height*/));
+
 				Image propimage = pr.getProp2DImage(pan, this.zoom,
 						this.cameraangle);
 				if (propimage != null) {
 					Dimension grip = pr.getProp2DGrip(pan, this.zoom);
 					g.drawImage(propimage, x - grip.width, y - grip.height, pan);
-
-					Animator.remoteControl.updateAnimation(i, (x - grip.width),
-							(y - grip.height));
 
 					if (i == 0) {
 						// XY COORDS

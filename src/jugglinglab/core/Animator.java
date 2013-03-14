@@ -48,6 +48,7 @@ import jugglinglab.util.JuggleException;
 import jugglinglab.util.JuggleExceptionInternal;
 import jugglinglab.util.JuggleExceptionUser;
 import jugglinglab.util.Permutation;
+import jugglinglab.view.View;
 import remote.RemoteControl;
 
 public class Animator extends JPanel implements Runnable {
@@ -96,7 +97,11 @@ public class Animator extends JPanel implements Runnable {
 
 	public static RemoteControl remoteControl;
 
-	public Animator() {
+	public View parentView;
+
+	public Animator(View v) {
+		parentView = v;
+
 		cameradrag = false;
 		initHandlers();
 
@@ -421,7 +426,14 @@ public class Animator extends JPanel implements Runnable {
 
 					for (int path = 1; path <= pat.getNumberOfPaths(); path++) {
 						if (pat.getPathThrowVolume(path, oldtime, newtime) > 0.0) {
-							remoteControl.countCatch();
+							// remoteControl.countCatch(path);
+						}
+					}
+
+					for (int path = 1; path <= pat.getNumberOfPaths(); path++) {
+						double air = pat.isPathMidAir(path, oldtime, newtime);
+						if (air != 0.0) {
+							remoteControl.countCatch(path, (int) air);
 						}
 					}
 
@@ -434,9 +446,10 @@ public class Animator extends JPanel implements Runnable {
 						}
 					}
 
-					if (jc.bounceSound) {
+					if (true || jc.bounceSound) {
 						for (int path = 1; path <= pat.getNumberOfPaths(); path++) {
 							if (pat.getPathBounceVolume(path, oldtime, newtime) > 0.0) {
+								System.out.println("bounce");
 								if (bounceclip != null)
 									bounceclip.play();
 							}

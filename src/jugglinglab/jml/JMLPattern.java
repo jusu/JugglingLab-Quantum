@@ -1258,6 +1258,42 @@ public class JMLPattern {
 		return 0.0;
 	}
 
+	public double isPathMidAir(int path, double time1, double time2) {
+		int i;
+		PathLink pl = null;
+
+		for (i = 0; i < pathlinks[path - 1].size(); i++) {
+			pl = (PathLink) pathlinks[path - 1].elementAt(i);
+			if ((time1 >= pl.getStartEvent().getT())
+					&& (time1 <= pl.getEndEvent().getT()))
+				break;
+		}
+		if (i == pathlinks[path - 1].size())
+			return 0.0;
+		while (true) {
+			pl = (PathLink) pathlinks[path - 1].elementAt(i);
+			Path p = pl.getPath();
+
+			if (p != null) {
+				double midPoint = p.getStartTime() + p.getDuration() / 2.0;
+				midPoint -= 0.2;
+				if (time1 < midPoint && time2 > midPoint) {
+					return p.direction() * 1.0;
+				}
+			}
+
+			if ((time2 >= pl.getStartEvent().getT())
+					&& (time2 <= pl.getEndEvent().getT()))
+				break;
+
+			i++;
+			if (i == pathlinks[path - 1].size())
+				i = 0;
+		}
+
+		return 0.0;
+	}
+
 	public Coordinate getPathMax(int path) { // maximum of each coordinate
 		Coordinate result = null;
 		double t1 = getLoopStartTime();
