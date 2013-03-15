@@ -59,6 +59,7 @@ public class RemoteControl extends Thread {
 									.getNotation(Notation.builtinNotations[0]);
 							JMLPattern p = not.getJMLPattern("pattern=" + pat
 									+ ";prop=ball");
+
 							if (this.animator.parentView != null) {
 								this.animator.parentView.restartView(p,
 										new AnimatorPrefs());
@@ -69,6 +70,34 @@ public class RemoteControl extends Thread {
 						} catch (JuggleExceptionInternal e) {
 							// TODO Auto-generated catch block
 							e.printStackTrace();
+						}
+					}
+					if (a[0].equals("speed")) {
+						String sp = a[1];
+						double speed = Double.valueOf(sp);
+						if (speed > 0.0 && this.animator.parentView != null) {
+							AnimatorPrefs prefs = new AnimatorPrefs();
+							AnimatorPrefs.slowdown_def = speed;
+							prefs.slowdown = speed;
+							try {
+								double curTime = this.animator.getTime();
+
+								Notation not = Notation
+										.getNotation(Notation.builtinNotations[0]);
+								JMLPattern p = not.getJMLPattern("pattern="
+										+ pattern + ";prop=ball");
+
+								System.out.println("speed=" + speed);
+								this.animator.parentView.restartView(p, prefs);
+
+								this.animator.setTime(curTime);
+							} catch (JuggleExceptionUser e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							} catch (JuggleExceptionInternal e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
 						}
 					}
 				}
