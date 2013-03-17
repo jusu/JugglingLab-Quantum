@@ -430,10 +430,12 @@ public class Animator extends JPanel implements Runnable {
 						}
 					}
 
+					pat.calcMidpoints();
+
 					for (int path = 1; path <= pat.getNumberOfPaths(); path++) {
-						double air = pat.isPathMidAir(path, oldtime, newtime);
-						if (air != 0.0) {
-							remoteControl.countCatch(path, (int) air);
+						int[] res = pat.isPathMidAir(path, oldtime, newtime);
+						if (res != null) {
+							remoteControl.countCatch(res[0], res[1]);
 						}
 					}
 

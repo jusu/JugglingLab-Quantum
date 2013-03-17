@@ -30,7 +30,7 @@ public class RemoteControl extends Thread {
 	public void countCatch(int path, int direction) {
 		if (patCounter < pattern.length()) {
 			char c = pattern.charAt(patCounter);
-			sender.send(String.format("b %c %d %d", c, path, direction));
+			sender.send(String.format("b %d %d", path, direction));
 		}
 
 		if (++patCounter >= pattern.length()) {

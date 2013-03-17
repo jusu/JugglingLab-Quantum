@@ -29,6 +29,8 @@ import java.io.StringReader;
 import java.io.StringWriter;
 import java.io.Writer;
 import java.text.MessageFormat;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.ResourceBundle;
 import java.util.StringTokenizer;
 import java.util.Vector;
@@ -1258,7 +1260,78 @@ public class JMLPattern {
 		return 0.0;
 	}
 
-	public double isPathMidAir(int path, double time1, double time2) {
+	//
+	// Get height of throw from the mid-air z position.
+	//
+
+	public HashSet<Integer> za = null;
+	int[] sortedHeights = null;
+
+	private int[] sorted(HashSet<Integer> set) {
+		int[] a = new int[set.size()];
+
+		int n = 0;
+		for (Integer i : set) {
+			a[n++] = i.intValue();
+		}
+
+		Arrays.sort(a);
+
+		return a;
+	}
+
+	public int guessHeight(double z) {
+		if (za == null) {
+			za = new HashSet<Integer>();
+		}
+
+		Integer zi = Integer.valueOf((int) z);
+		if (za.contains(zi)) {
+			int[] aa = sorted(za);
+			for (int n = 0; n < aa.length; n++) {
+				if (aa[n] == (int) z) {
+					return sortedHeights[n];
+				}
+			}
+		}
+
+		za.add(zi);
+
+		return 0;
+	}
+
+	private final double midpointOffset = 0.2;
+
+	public void calcMidpoints() {
+		if (za == null) {
+			String s = getTitle();
+			HashSet<Integer> ints = new HashSet<Integer>();
+			for (int n = 0; n < s.length(); n++) {
+				if (s.charAt(n) != '2') {
+					ints.add(Integer.valueOf(s.charAt(n) - '0'));
+				}
+			}
+
+			sortedHeights = sorted(ints);
+
+			for (int path = 1; path <= getNumberOfPaths(); path++) {
+				for (int i = 0; i < pathlinks[path - 1].size(); i++) {
+					PathLink pl = (PathLink) pathlinks[path - 1].elementAt(i);
+					Path p = pl.getPath();
+					if (p != null) {
+						double midPoint = p.getStartTime() + p.getDuration()
+								/ 2.0;
+						midPoint -= midpointOffset;
+						Coordinate c = new Coordinate();
+						p.getCoordinate(midPoint, c);
+						guessHeight(c.z);
+					}
+				}
+			}
+		}
+	}
+
+	public int[] isPathMidAir(int path, double time1, double time2) {
 		int i;
 		PathLink pl = null;
 
@@ -1269,16 +1342,22 @@ public class JMLPattern {
 				break;
 		}
 		if (i == pathlinks[path - 1].size())
-			return 0.0;
+			return null;
 		while (true) {
 			pl = (PathLink) pathlinks[path - 1].elementAt(i);
 			Path p = pl.getPath();
 
 			if (p != null) {
 				double midPoint = p.getStartTime() + p.getDuration() / 2.0;
-				midPoint -= 0.2;
+				midPoint -= midpointOffset;
 				if (time1 < midPoint && time2 > midPoint) {
-					return p.direction() * 1.0;
+					Coordinate c = new Coordinate();
+					p.getCoordinate(midPoint, c);
+
+					int g = guessHeight(c.z);
+					int ret[] = { g, (int) (p.direction() * 1.0) };
+
+					return ret;
 				}
 			}
 
@@ -1291,7 +1370,7 @@ public class JMLPattern {
 				i = 0;
 		}
 
-		return 0.0;
+		return null;
 	}
 
 	public Coordinate getPathMax(int path) { // maximum of each coordinate
